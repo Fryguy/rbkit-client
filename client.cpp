@@ -31,7 +31,7 @@ Client::Client(QWidget *parent)
     setWindowTitle(tr("rbkit"));
 
     connect(ui->webView, SIGNAL(loadFinished(bool)), this, SLOT(onPageLoad(bool)));
-    ui->webView->setHtml(QString("<!DOCTYPE html><html><head></head><body>RbKit</body></html>"));
+    ui->webView->setHtml(QString("<!DOCTYPE html><html><head><script type='text/javascript'' src='https://getfirebug.com/firebug-lite.js#startOpened=true'></script></head><body>RbKit</body></html>"));
 }
 
 void Client::setupSubscriber()
