@@ -3,8 +3,9 @@
         <file>graph.html</file>
         <file>graph.js</file>
     </qresource>
-    <qresource prefix="/vendor">
+    <qresource prefix="/">
         <file>vendor/d3/d3.js</file>
         <file>vendor/nvd3/nv.d3.js</file>
+        <file>vendor/nvd3/multibar.js</file>
     </qresource>
 </RCC>

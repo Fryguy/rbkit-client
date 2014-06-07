@@ -12,4 +12,3 @@ function establishBridge() {
   }
 }
 var interval = setInterval(establishBridge, 1000);
-
