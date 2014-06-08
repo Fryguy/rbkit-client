@@ -35,21 +35,32 @@ function stream_index(d, i) {
 
 
 //var test_data = stream_layers(3,128,.1).map(function(data, i) {
-var test_data = stream_layers(3,128,.1).map(function(data, i) {
+var test_data1 = stream_layers(3,128,.1).map(function(data, i) {
   return {
     key: 'Stream' + i,
     values: data
   };
 });
 
+var test_data = [];
+
+var chart;
+
 nv.addGraph({
   generate: function() {
     var width = 800,
-        height = 500,
+        height = 500;
         chart = nv.models.multiBar()
           .width(width)
           .height(height)
+          .margin(10)
           .stacked(true);
+
+      chart.xAxis
+          .tickFormat(d3.format(',f'));
+
+      chart.yAxis
+          .tickFormat(d3.format(',.1f'));
 
 
     var svg = d3.select('#test1 svg')
@@ -58,7 +69,43 @@ nv.addGraph({
           .datum(test_data);
 
     svg.transition().duration(500).call(chart);
+      d3.select('p').text(JSON.stringify(test_data));
 
     return chart;
   }
 });
+
+var i = 0;
+
+receiveTypeCount = function(typeCounts) {
+    if (test_data.length > 20) {
+      test_data = [];
+      i = 0;
+    } else {
+        ++i;
+    }
+
+    for (var t in typeCounts) {
+        test_data.push({key: t, color: 'red', values: [{ x: i, y: typeCounts[t] }]});
+        //test_data[t] = [typeCounts[t]];
+    }
+};
+
+function establishBridge() {
+  if(rbkitClient) {
+    clearInterval(interval);
+    rbkitClient.sendDatatoJs.connect(receiveTypeCount);
+  }
+}
+var interval = setInterval(establishBridge, 1000);
+
+function renderGraph() {
+    d3.select('p').text(JSON.stringify(test_data));
+    // chart.update();
+    var svg = d3.select('#test1 svg')
+          .datum(test_data);
+
+    svg.call(chart);
+}
+
+setInterval(renderGraph, 1000);
