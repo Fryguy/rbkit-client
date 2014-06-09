@@ -89,44 +89,42 @@ nv.addGraph({
   }
 });
 
-var i = 0;
+var xAxisIter = 0;
 
 receiveTypeCount = function(typeCounts) {
-    if (i > 10) {
+    if (xAxisIter > 10) {
         rbkitClient.sendDatatoJs.disconnect(receiveTypeCount);
         return;
     }
 
-    for (var t in typeCounts) {
-        var entry = { x: i, y: typeCounts[t] };
+    var newValues = {};
+    for (var key in typeCounts) {
+        var entry = { x: xAxisIter, y: typeCounts[key] };
         var found = 0;
 
         for (var iter = 0; iter != test_data.length; ++iter) {
-            if (test_data[iter].key === t) {
+            if (test_data[iter].key === key) {
                 test_data[iter].values.push(entry);
                 found = 1;
             }
         }
 
         if (!found) {
-            if (i == 0) {
-                var data = { key: t, values: [entry] };
-                test_data.push(data);
-            } else {
-                var data = { key: t, values: [] };
-
-                first_one = test_data[0];
-                for (var iter = 0; iter != first_one.values.length; ++iter) {
-                    data.values.push({ x: first_one.values[iter].x, y: 0 });
-                }
-                data.values[-1] = entry;
-
-                test_data.push(data);
-            }
+            newValues[key] = typeCounts[t];
         }
     }
 
-    ++i;
+    if (xAxisIter == 0) {
+        entry = { x: 0, y: typeCounts[key] };
+
+        for (var key in newValues) {
+            test_data.push({ key: key, values: [entry] });
+        }
+    } else {
+        baseEntryValues = test_data[0];
+    }
+
+    ++xAxisIter;
 };
 
 function establishBridge() {
