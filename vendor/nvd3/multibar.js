@@ -91,37 +91,48 @@ nv.addGraph({
 
 var xAxisIter = 0;
 
-receiveTypeCount = function(typeCounts) {
-    if (xAxisIter > 10) {
+receiveTypeCount = function(typeCountsFromBackend) {
+    var typeCounts = {};
+    for (var attr in typeCountsFromBackend) {
+        if (typeCountsFromBackend.hasOwnProperty(attr))
+            typeCounts[attr] = typeCountsFromBackend[attr];
+    }
+
+    d3.select('p').text(JSON.stringify(typeCounts));
+
+    if (xAxisIter > 50) {
         rbkitClient.sendDatatoJs.disconnect(receiveTypeCount);
         return;
     }
 
-    var newValues = {};
-    for (var key in typeCounts) {
-        var entry = { x: xAxisIter, y: typeCounts[key] };
-        var found = 0;
+    // first update the existing values
+    for (var iter = 0; iter != test_data.length; ++iter) {
+        var entry = { x: xAxisIter, y: 0 };
+        var key = test_data[iter].key;
 
-        for (var iter = 0; iter != test_data.length; ++iter) {
-            if (test_data[iter].key === key) {
-                test_data[iter].values.push(entry);
-                found = 1;
-            }
+        if (key in typeCounts) {
+            entry.y = typeCounts[key];
+            delete typeCounts[key];
         }
 
-        if (!found) {
-            newValues[key] = typeCounts[t];
-        }
+        test_data[iter].values.push(entry);
     }
 
+    // for new values, get base value, and initialize all defaults.
     if (xAxisIter == 0) {
-        entry = { x: 0, y: typeCounts[key] };
-
-        for (var key in newValues) {
-            test_data.push({ key: key, values: [entry] });
+        for (var key in typeCounts) {
+            test_data.push({ key: key, values: [{ x: 0, y: typeCounts[key] }] });
         }
     } else {
-        baseEntryValues = test_data[0];
+        var baseEntryValues = test_data[0].values;
+        for (var key in typeCounts) {
+            var newData = { key: key, values: [] };
+            for (iter = 0; iter != (baseEntryValues.length - 1); ++iter) {
+                newData.values.push({ x: baseEntryValues[iter].x, y: 0 });
+            }
+            newData.values.push({ x: xAxisIter, y: typeCounts[key] });
+            test_data.push(newData);
+        }
     }
 
     ++xAxisIter;
@@ -136,7 +147,7 @@ function establishBridge() {
 var interval = setInterval(establishBridge, 1000);
 
 function renderGraph() {
-    d3.select('p').text(JSON.stringify(test_data));
+    //d3.select('p').text(JSON.stringify(test_data));
     // chart.update();
     var svg = d3.select('#test1 svg')
           .datum(test_data);
