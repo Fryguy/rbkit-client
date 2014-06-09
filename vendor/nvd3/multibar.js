@@ -42,8 +42,22 @@ var test_data1 = stream_layers(3,128,.1).map(function(data, i) {
   };
 });
 
-var test_data = [];
 
+var test_data2 = [
+            {"key":"Foo","color":"red","values":[{"x":1,"y":2453},
+                                                {"x":2,"y":2453},
+                                                {"x":3,"y":2453},
+                                                {"x":4,"y":2453}
+                ]},
+            {"key":"String","color":"orange","values":[{"x":1,"y":17166},
+                                                       {"x":2,"y":17168},
+                                                       {"x":3,"y":17170},
+                                                       {"x":4,"y":17172}]}
+        ];
+
+//var test_data = [{"key":"String","values":[{"x":0,"y":3},{"x":1,"y":0},{"x":2,"y":2},{"x":3,"y":2},{"x":4,"y":3},{"x":5,"y":4},{"x":6,"y":5},{"x":7,"y":6},{"x":8,"y":7},{"x":9,"y":8},{"x":10,"y":9}]},{"key":"Foo","values":[{"x":0,"y":4},{"x":1,"y":0},{"x":2,"y":0},{"x":4,"y":1},{"x":5,"y":1},{"x":6,"y":1},{"x":7,"y":1},{"x":8,"y":1},{"x":9,"y":1},{"x":10,"y":1}]}];
+
+var test_data = [];
 var chart;
 
 nv.addGraph({
@@ -68,8 +82,8 @@ nv.addGraph({
           .attr('height', height)
           .datum(test_data);
 
-    svg.transition().duration(500).call(chart);
-      d3.select('p').text(JSON.stringify(test_data));
+    svg.call(chart);
+    d3.select('p').text(JSON.stringify(test_data));
 
     return chart;
   }
@@ -78,17 +92,41 @@ nv.addGraph({
 var i = 0;
 
 receiveTypeCount = function(typeCounts) {
-    if (test_data.length > 20) {
-      test_data = [];
-      i = 0;
-    } else {
-        ++i;
+    if (i > 10) {
+        rbkitClient.sendDatatoJs.disconnect(receiveTypeCount);
+        return;
     }
 
     for (var t in typeCounts) {
-        test_data.push({key: t, color: 'red', values: [{ x: i, y: typeCounts[t] }]});
-        //test_data[t] = [typeCounts[t]];
+        var entry = { x: i, y: typeCounts[t] };
+        var found = 0;
+
+        for (var iter = 0; iter != test_data.length; ++iter) {
+            if (test_data[iter].key === t) {
+                test_data[iter].values.push(entry);
+                found = 1;
+            }
+        }
+
+        if (!found) {
+            if (i == 0) {
+                var data = { key: t, values: [entry] };
+                test_data.push(data);
+            } else {
+                var data = { key: t, values: [] };
+
+                first_one = test_data[0];
+                for (var iter = 0; iter != first_one.values.length; ++iter) {
+                    data.values.push({ x: first_one.values[iter].x, y: 0 });
+                }
+                data.values[-1] = entry;
+
+                test_data.push(data);
+            }
+        }
     }
+
+    ++i;
 };
 
 function establishBridge() {
@@ -106,6 +144,7 @@ function renderGraph() {
           .datum(test_data);
 
     svg.call(chart);
+    clearInterval(renderInterval);
 }
 
-setInterval(renderGraph, 1000);
+var renderInterval = setInterval(renderGraph, 1000);
