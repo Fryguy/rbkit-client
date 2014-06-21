@@ -98,9 +98,9 @@ receiveTypeCount = function(typeCountsFromBackend) {
             typeCounts[attr] = typeCountsFromBackend[attr];
     }
 
-    d3.select('p').text(JSON.stringify(typeCounts));
+    //d3.select('p').text(JSON.stringify(typeCounts));
 
-    if (xAxisIter > 50) {
+    if (xAxisIter < 0) {
         rbkitClient.sendDatatoJs.disconnect(receiveTypeCount);
         return;
     }
@@ -135,6 +135,14 @@ receiveTypeCount = function(typeCountsFromBackend) {
         }
     }
 
+    if ( xAxisIter && (xAxisIter%100 == 0) ) {
+        for (var iter = 0; iter != test_data.length; ++iter) {
+            values = test_data[iter].values;
+            test_data[iter].values = values.slice(-100, -1);
+        }
+    }
+
+    d3.select('p').text(xAxisIter);
     ++xAxisIter;
 };
 
@@ -153,7 +161,6 @@ function renderGraph() {
           .datum(test_data);
 
     svg.call(chart);
-    clearInterval(renderInterval);
 }
 
 var renderInterval = setInterval(renderGraph, 1000);

@@ -14,7 +14,7 @@ class Subscriber : public QObject
     zmq::context_t *context;
 
     QMap<QString, QString> m_objId2Type;
-    QMap<QString, int> m_event2Count;
+    QMap<QString, unsigned long int> m_event2Count;
 
     // we are interested in this count.
     QVariantMap m_type2Count;
