@@ -8,7 +8,7 @@ function makeDummySeries() {
 
   for (i = -19; i <= 0; i++) {
     var time = (new Date()).getTime() + i*1000;
-    data.push([time, 0]);
+    data.push([time, 0.1]);
   }
   return data;
 }
@@ -61,7 +61,8 @@ var chart = $('#container').highcharts({
     }
   },
   yAxis: {
-    min: 0,
+    type: 'logarithmic',
+    minorTickInterval: 0.1,
     title: {
       text: 'Live Objects'
     },
@@ -97,7 +98,7 @@ function addNewSeriesData(chart, time, value) {
   var selectedSeriesData = chart.series[0].data;
   var data = [];
   for(i = 0; i < 19; i++) {
-    data.push([selectedSeriesData[i].x, 0]);
+    data.push([selectedSeriesData[i].x, 0.1]);
   }
   data.push([time, value]);
   return data;
