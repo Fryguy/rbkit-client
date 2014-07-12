@@ -10,12 +10,16 @@ SOURCES += \
             main.cpp \
     subscriber.cpp \
     rbkitmainwindow.cpp \
-    askhost.cpp
+    askhost.cpp \
+    objectgeneration.cpp \
+    objectdetail.cpp
 
 HEADERS +=  \
     subscriber.h \
     rbkitmainwindow.h \
-    askhost.h
+    askhost.h \
+    objectgeneration.h \
+    objectdetail.h
 
 msgpack.target = $$OUT_PWD/msgpack/lib/libmsgpack.a
 msgpack.commands = mkdir -p $$OUT_PWD/msgpack; cd $$OUT_PWD/msgpack; $$PWD/msgpack-c/configure --prefix=$$OUT_PWD/msgpack; make; make install
