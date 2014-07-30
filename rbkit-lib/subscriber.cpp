@@ -11,6 +11,7 @@ static const int timerIntervalInMs = 1000;
 Subscriber::Subscriber(QObject *parent) :
     QObject(parent)
 {
+    populateEventFunctions();
     // second argument to creating a context is number of io threads. right
     // now, we are using only 1 thread, so defaulting to 1 for now.
     m_context = new nzmqt::SocketNotifierZMQContext(this, rbkcZmqTotalIoThreads);
@@ -112,9 +113,9 @@ void Subscriber::onMessageReceived(const QList<QByteArray>& rawMessage)
         msgpackIterator = parsedMap.find("event_type");
         if(msgpackIterator != parsedMap.end()) {
             std::string eventName = msgpackIterator->second.as<std::string>();
-            std::map<std::string, eventFunctions>::iterator eventIterator = eventFunctionMap.find(eventName);
+            std::map<std::string, EventMemberFunction>::iterator eventIterator = eventFunctionMap.find(eventName);
             if(eventIterator != eventFunctionMap.end()) {
-                eventFunctions functionPtr = eventIterator->second();
+                EventMemberFunction functionPtr = eventIterator->second;
                 (this->*functionPtr)(parsedMap);
             }
         }

@@ -19,18 +19,20 @@ namespace nzmqt
 
 class QTimer;
 typedef std::map<std::string, msgpack::object> MapStrMsgPackObj;
-typedef void (*eventFunctions)(MapStrMsgPackObj &);
+
 
 class Subscriber : public QObject
 {
     Q_OBJECT
+    typedef void (Subscriber::*EventMemberFunction)(MapStrMsgPackObj &);
+    std::map<std::string, EventMemberFunction> eventFunctionMap;
 
     nzmqt::ZMQContext* m_context;
     nzmqt::ZMQSocket* m_socket;
 
     QMap<QString, QString> m_objId2Type;
     QMap<QString, int> m_event2Count;
-    std::map<std::string, eventFunctions> eventFunctionMap;
+
 
     // we are interested in this count.
     QVariantMap m_type2Count;
