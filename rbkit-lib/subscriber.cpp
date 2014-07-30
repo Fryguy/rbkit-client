@@ -4,10 +4,7 @@
 
 #include "nzmqt/nzmqt.hpp"
 
-#include <msgpack.hpp>
-
 #include "subscriber.h"
-
 static const int rbkcZmqTotalIoThreads = 1;
 static const int timerIntervalInMs = 1000;
 
@@ -28,6 +25,41 @@ Subscriber::Subscriber(QObject *parent) :
     m_timer->setInterval(timerIntervalInMs);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimerExpiry()));
 }
+
+void Subscriber::populateEventFunctions() {
+    eventFunctionMap["gc_stats"] = &Subscriber::processGcStatEvent;
+    eventFunctionMap["obj_created"] = &Subscriber::newObjectEvent;
+    eventFunctionMap["obj_destroyed"] = &Subscriber::objectDestroyEvent;
+    eventFunctionMap["gc_start"] = &Subscriber::gcStartEvent;
+    eventFunctionMap["gc_end_s"] = &Subscriber::gcEndEvent;
+    eventFunctionMap["object_space_dump"] = &Subscriber::objSpaceDumpEvent;
+}
+
+void Subscriber::processGcStatEvent(MapStrMsgPackObj &parsedMap) {
+    std::cout << "Got a gc stat event" << endl;
+    displayParsedMap(parsedMap);
+}
+
+void Subscriber::newObjectEvent(MapStrMsgPackObj &parsedMap) {
+
+}
+
+void Subscriber::objectDestroyEvent(MapStrMsgPackObj &parsedMap) {
+
+}
+
+void Subscriber::gcEndEvent(MapStrMsgPackObj &parsedMap) {
+
+}
+
+void Subscriber::gcStartEvent(MapStrMsgPackObj &parsedMap) {
+
+}
+
+void Subscriber::objSpaceDumpEvent(MapStrMsgPackObj &parsedMap) {
+
+}
+
 
 Subscriber::~Subscriber()
 {
@@ -72,40 +104,32 @@ void Subscriber::onMessageReceived(const QList<QByteArray>& rawMessage)
     {
         const QByteArray& message = *iter;
         msgpack::unpacked unpackedMessage;
-        msgpack::unpack(&unpackedMessage, (const char *)message.data(), message.size());
-        msgpack::object_raw rawMessage = unpackedMessage.get().via.raw;
-        QString strMessage = QString::fromUtf8(rawMessage.ptr, rawMessage.size);
-        QStringList eventInfo = strMessage.split(QChar(' '));
+        msgpack::unpack(&unpackedMessage, message.data(), message.size());
+        msgpack::object obj = unpackedMessage.get();
+        MapStrMsgPackObj parsedMap = obj.as<MapStrMsgPackObj>();
 
-        if (eventInfo.length() > 2) {
-
-            // just for recording purpose, we are not using it anywhere
-            m_objId2Type[eventInfo[2]] = eventInfo[1];
-            ++m_event2Count[eventInfo[0]];
-
-            // initialize the count if not valid
-            if (!m_type2Count[eventInfo[1]].isValid())
-                m_type2Count[eventInfo[1]] = QVariant(0);
-
-            // increment or decrement the count according the event
-            if (!eventInfo[0].compare(QString("obj_created"))) {
-                int value = m_type2Count[eventInfo[1]].toInt() + 1;
-                m_type2Count[eventInfo[1]].setValue(value);
-            } else {
-                int oldCount = m_type2Count[eventInfo[1]].toInt();
-                int value;
-                if(oldCount > 0) {
-                    value = oldCount - 1;
-                } else {
-                    value = 0;
-                }
-                m_type2Count[eventInfo[1]].setValue(value);
+        MapStrMsgPackObj::iterator msgpackIterator;
+        msgpackIterator = parsedMap.find("event_type");
+        if(msgpackIterator != parsedMap.end()) {
+            std::string eventName = msgpackIterator->second.as<std::string>();
+            std::map<std::string, eventFunctions>::iterator eventIterator = eventFunctionMap.find(eventName);
+            if(eventIterator != eventFunctionMap.end()) {
+                eventFunctions functionPtr = eventIterator->second();
+                (this->*functionPtr)(parsedMap);
             }
-
         }
     }
 }
 
+void Subscriber::displayParsedMap(MapStrMsgPackObj &parsedMap) {
+    MapStrMsgPackObj::iterator msgpackIterator;
+    for(msgpackIterator = parsedMap.begin();
+        msgpackIterator != parsedMap.end();
+        msgpackIterator++) {
+        std::cout << msgpackIterator->first << std::endl;
+        std::cout << msgpackIterator->second << std::endl;
+    }
+}
 
 void Subscriber::onTimerExpiry()
 {
