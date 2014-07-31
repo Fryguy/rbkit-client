@@ -24,7 +24,7 @@ typedef std::map<std::string, msgpack::object> MapStrMsgPackObj;
 class Subscriber : public QObject
 {
     Q_OBJECT
-    typedef void (Subscriber::*EventMemberFunction)(MapStrMsgPackObj &);
+    typedef void (Subscriber::*EventMemberFunction)(MapStrMsgPackObj &, std::string &);
     std::map<std::string, EventMemberFunction> eventFunctionMap;
 
     nzmqt::ZMQContext* m_context;

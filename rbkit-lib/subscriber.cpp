@@ -5,6 +5,8 @@
 #include "nzmqt/nzmqt.hpp"
 
 #include "subscriber.h"
+#include "gcstat.h"
+
 static const int rbkcZmqTotalIoThreads = 1;
 static const int timerIntervalInMs = 1000;
 
@@ -36,29 +38,33 @@ void Subscriber::populateEventFunctions() {
     eventFunctionMap["object_space_dump"] = &Subscriber::objSpaceDumpEvent;
 }
 
-void Subscriber::processGcStatEvent(MapStrMsgPackObj &parsedMap) {
+void Subscriber::processGcStatEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
     std::cout << "Got a gc stat event" << endl;
+    GcStat *stat = new GcStat(eventName, parsedMap);
     displayParsedMap(parsedMap);
 }
 
-void Subscriber::newObjectEvent(MapStrMsgPackObj &parsedMap) {
+void Subscriber::newObjectEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
+    std::cout << "Got new object event" << std::endl;
+}
+
+void Subscriber::objectDestroyEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
+    std::cout << "Got object destroy event" << std::endl;
 
 }
 
-void Subscriber::objectDestroyEvent(MapStrMsgPackObj &parsedMap) {
+void Subscriber::gcEndEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
+    std::cout << "Got gc end event" << std::endl;
 
 }
 
-void Subscriber::gcEndEvent(MapStrMsgPackObj &parsedMap) {
+void Subscriber::gcStartEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
+    std::cout << "Got gc start event" << std::endl;
 
 }
 
-void Subscriber::gcStartEvent(MapStrMsgPackObj &parsedMap) {
-
-}
-
-void Subscriber::objSpaceDumpEvent(MapStrMsgPackObj &parsedMap) {
-
+void Subscriber::objSpaceDumpEvent(MapStrMsgPackObj &parsedMap, std::string& eventName) {
+    std::cout << "Got objectspace dump" << std::endl;
 }
 
 
@@ -107,6 +113,7 @@ void Subscriber::onMessageReceived(const QList<QByteArray>& rawMessage)
         msgpack::unpacked unpackedMessage;
         msgpack::unpack(&unpackedMessage, message.data(), message.size());
         msgpack::object obj = unpackedMessage.get();
+        //FIXME: We will have to free the memory allocated here.
         MapStrMsgPackObj parsedMap = obj.as<MapStrMsgPackObj>();
 
         MapStrMsgPackObj::iterator msgpackIterator;
@@ -116,7 +123,7 @@ void Subscriber::onMessageReceived(const QList<QByteArray>& rawMessage)
             std::map<std::string, EventMemberFunction>::iterator eventIterator = eventFunctionMap.find(eventName);
             if(eventIterator != eventFunctionMap.end()) {
                 EventMemberFunction functionPtr = eventIterator->second;
-                (this->*functionPtr)(parsedMap);
+                (this->*functionPtr)(parsedMap, eventName);
             }
         }
     }
