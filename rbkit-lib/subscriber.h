@@ -49,12 +49,12 @@ class Subscriber : public QObject
 public:
     explicit Subscriber(QObject *parent = 0);
     void populateEventFunctions();
-    void processGcStatEvent(MapStrMsgPackObj& parsedMap);
-    void newObjectEvent(MapStrMsgPackObj& parsedMap);
-    void objectDestroyEvent(MapStrMsgPackObj& parsedMap);
-    void gcStartEvent(MapStrMsgPackObj& parsedMap);
-    void gcEndEvent(MapStrMsgPackObj& parsedMap);
-    void objSpaceDumpEvent(MapStrMsgPackObj& parsedMap);
+    void processGcStatEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
+    void newObjectEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
+    void objectDestroyEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
+    void gcStartEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
+    void gcEndEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
+    void objSpaceDumpEvent(MapStrMsgPackObj& parsedMap, std::string& eventName);
     void displayParsedMap(MapStrMsgPackObj& parsedMap);
     ~Subscriber();
 

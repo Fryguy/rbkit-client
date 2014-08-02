@@ -5,7 +5,7 @@
 #include <QString>
 
 class EventData {
-    const QString& eventName;
+    const QString eventName;
     double timestamp;
 };
 

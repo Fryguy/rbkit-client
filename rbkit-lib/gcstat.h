@@ -5,6 +5,7 @@
 #include <string>
 #include <QString>
 #include "eventdata.h"
+#include "subscriber.h"
 
 class GcStat : public EventData
 {
