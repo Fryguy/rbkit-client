@@ -13,12 +13,15 @@ SOURCES += \
     rbkitmainwindow.cpp \
     askhost.cpp \
     gcstat.cpp
+    rbcommands.cpp \
+    zmqsockets.cpp
 
 HEADERS +=  \
     subscriber.h \
     rbkitmainwindow.h \
     askhost.h \
     gcstat.h
+    zmqsockets.h
 
 # Include msgpack via pri file
 include($$RC_ROOT_SOURCE_DIR/common.pri)

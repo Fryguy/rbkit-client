@@ -21,14 +21,20 @@ class QTimer;
 typedef std::map<std::string, msgpack::object> MapStrMsgPackObj;
 
 
+namespace RBKit
+{
+    class ZmqCommandSocket;
+    class ZmqEventSocket;
+}
+
 class Subscriber : public QObject
 {
     Q_OBJECT
     typedef void (Subscriber::*EventMemberFunction)(MapStrMsgPackObj &, std::string &);
     std::map<std::string, EventMemberFunction> eventFunctionMap;
 
-    nzmqt::ZMQContext* m_context;
-    nzmqt::ZMQSocket* m_socket;
+    RBKit::ZmqCommandSocket* commandSocket;
+    RBKit::ZmqEventSocket* eventSocket;
 
     QMap<QString, QString> m_objId2Type;
     QMap<QString, int> m_event2Count;
@@ -59,7 +65,8 @@ signals:
     void errored(const QString &);
 
 public slots:
-    void startListening(const QString &);
+    void startListening(QString, QString);
+    void stop();
     void onMessageReceived(const QList<QByteArray>&);
     void onTimerExpiry();
 };
