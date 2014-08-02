@@ -12,7 +12,7 @@ SOURCES += \
     subscriber.cpp \
     rbkitmainwindow.cpp \
     askhost.cpp \
-    gcstat.cpp
+    gcstat.cpp \
     rbcommands.cpp \
     zmqsockets.cpp
 
@@ -20,7 +20,8 @@ HEADERS +=  \
     subscriber.h \
     rbkitmainwindow.h \
     askhost.h \
-    gcstat.h
+    gcstat.h \
+    eventdata.h\
     zmqsockets.h
 
 # Include msgpack via pri file

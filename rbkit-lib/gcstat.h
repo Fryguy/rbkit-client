@@ -4,12 +4,13 @@
 #include <map>
 #include <string>
 #include <QString>
+#include "eventdata.h"
 
 class GcStat : public EventData
 {
     std::map<std::string, long> heapStat;
 public:
-    GcStat(std::map<std::string, long>, double timestamp, const QString& eventName);
+    GcStat(std::map<std::string, long> dataMap, double timestamp, const QString& eventName);
     GcStat(std::string& eventName, MapStrMsgPackObj& parsedMap);
 };
 
