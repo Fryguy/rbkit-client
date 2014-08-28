@@ -1,5 +1,5 @@
 QT       += core gui webkitwidgets
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport sql
 
 TARGET = RbkitClient
 

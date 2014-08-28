@@ -22,6 +22,7 @@ SOURCES += \
     heapdumpform.cpp \
     heaptable.cpp \
     objecttyperow.cpp \
+    dbobjstore.cpp \
     stringutil.cpp
 
 HEADERS +=  \
@@ -36,6 +37,7 @@ HEADERS +=  \
     heapdumpform.h \
     heaptable.h \
     objecttyperow.h \
+    dbobjstore.h \
     stringutil.h
 
 

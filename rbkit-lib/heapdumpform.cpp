@@ -1,5 +1,6 @@
 #include "heapdumpform.h"
 #include "ui_heapdumpform.h"
+#include "dbobjstore.h"
 
 HeapDumpForm::HeapDumpForm(QWidget *parent) :
     QWidget(parent),
@@ -19,9 +20,12 @@ RBKit::ObjectStore HeapDumpForm::getObjectStore() const
 
 void HeapDumpForm::setObjectStore(const RBKit::ObjectStore &value)
 {
-    objectStore = value;
-    HeapTable *heapTable = new HeapTable(0, objectStore);
-    ui->tableView->setModel(heapTable);
+    RBKit::DbObjStore dbstore;
+    dbstore.persistToDb(value);
+
+    // objectStore = value;
+    // HeapTable *heapTable = new HeapTable(0, objectStore);
+    // ui->tableView->setModel(heapTable);
 }
 
 
