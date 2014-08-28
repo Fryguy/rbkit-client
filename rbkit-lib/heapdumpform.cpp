@@ -2,6 +2,7 @@
 #include "ui_heapdumpform.h"
 #include "dbobjstore.h"
 #include <QSqlRelationalTableModel>
+#include <QSqlTableModel>
 
 HeapDumpForm::HeapDumpForm(QWidget *parent) :
     QWidget(parent),
@@ -24,10 +25,11 @@ void HeapDumpForm::setObjectStore(const RBKit::ObjectStore &value)
     RBKit::DbObjStore dbstore;
     dbstore.persistToDb(value);
 
-    QSqlRelationalTableModel *model = new QSqlRelationalTableModel();
+    QSqlTableModel *model = new QSqlTableModel();
     model->setTable("refs");
-    model->setRelation(2, QSqlRelation("objects", "id", "id"));
-    model->setRelation(3, QSqlRelation("objects", "id", "id"));
+    model->select();
+    //model->setRelation(2, QSqlRelation("objects", "id", "id"));
+    //model->setRelation(3, QSqlRelation("objects", "id", "id"));
 
     ui->tableView->setModel(model);
 }

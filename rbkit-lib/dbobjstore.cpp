@@ -52,6 +52,10 @@ void RBKit::DbObjStore::persistToDb(const RBKit::ObjectStore& store)
         RBKit::ObjectDetail& object = *iter.value();
         QList<quint64>::const_iterator refIter = object.references.constBegin();
         for (; refIter != object.references.constEnd(); ++refIter) {
+            if (refId == 20) {
+                return;
+            }
+
             QSqlQuery insertRef;
             insertRef.prepare("INSERT INTO refs (id, obj_id, ref_id) VALUES (?, ?, ?)");
             insertRef.addBindValue(refId);
@@ -63,6 +67,7 @@ void RBKit::DbObjStore::persistToDb(const RBKit::ObjectStore& store)
 
 
             ++refId;
+            ;
         }
 
     }
