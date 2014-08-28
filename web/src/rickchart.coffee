@@ -143,7 +143,7 @@ class @Charter
     @grapher.renderGraphAndLegend()
 
   tryQtBridge: =>
-    window.jsBridge?.jsEvent.connect(@receiveObjectData)
+    window.jsBridge
 
 grapher = new Graph('#chart')
 

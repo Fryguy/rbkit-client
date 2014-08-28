@@ -183,8 +183,7 @@ this.Charter = (function() {
   };
 
   Charter.prototype.tryQtBridge = function() {
-    var _ref;
-    return (_ref = window.jsBridge) != null ? _ref.jsEvent.connect(this.receiveObjectData) : void 0;
+    return window.jsBridge;
   };
 
   return Charter;
