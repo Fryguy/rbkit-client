@@ -26,7 +26,7 @@ void HeapDumpForm::setObjectStore(const RBKit::ObjectStore &value)
     dbstore.persistToDb(value);
 
     QSqlTableModel *model = new QSqlTableModel();
-    model->setTable("refs");
+    model->setTable("object_counts");
     model->select();
     //model->setRelation(2, QSqlRelation("objects", "id", "id"));
     //model->setRelation(3, QSqlRelation("objects", "id", "id"));

@@ -52,10 +52,6 @@ void RBKit::DbObjStore::persistToDb(const RBKit::ObjectStore& store)
         RBKit::ObjectDetail& object = *iter.value();
         QList<quint64>::const_iterator refIter = object.references.constBegin();
         for (; refIter != object.references.constEnd(); ++refIter) {
-            if (refId == 20) {
-                return;
-            }
-
             QSqlQuery insertRef;
             insertRef.prepare("INSERT INTO refs (id, obj_id, ref_id) VALUES (?, ?, ?)");
             insertRef.addBindValue(refId);
@@ -70,5 +66,27 @@ void RBKit::DbObjStore::persistToDb(const RBKit::ObjectStore& store)
             ;
         }
 
+    }
+
+    QSqlQuery query3;
+    ret = query3.exec("create table object_counts (id integer primary key, class_name varchar(255), total integer)");
+    qDebug() << ret;
+    qDebug() << database.lastError();
+
+
+    QHash<QString, quint32>::const_iterator countIter =
+        store.objectTypeCount.constBegin();
+    quint64 objEntries = 1;
+    for (; countIter != store.objectTypeCount.constEnd(); ++countIter) {
+        QSqlQuery objCount;
+        objCount.prepare("INSERT INTO object_counts (id, class_name, total) VALUES (?, ?, ?)");
+        objCount.addBindValue(objEntries);
+        objCount.addBindValue(countIter.key());
+        objCount.addBindValue(countIter.value());
+        ret = objCount.exec();
+        // qDebug() << ret;
+        // qDebug() << database.lastError();
+
+        ++objEntries;
     }
 }
