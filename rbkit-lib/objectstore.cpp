@@ -19,18 +19,54 @@ void RBKit::ObjectStore::insertObjectsInDB(QSqlQuery query)
 {
     qDebug() << "*  Insert number of  objects : " << objectStore.size();
     QHash<quint64, RBKit::ObjectDetail*>::const_iterator iter = objectStore.constBegin();
+    int batchSize = 0;
+    QVariantList objectids;
+    QVariantList classNames;
+    QVariantList sizes;
+    QVariantList refCounts;
+    QVariantList locations;
+
     while(iter != objectStore.constEnd()) {
         ObjectDetail *objectDetail = iter.value();
-        query.addBindValue(objectDetail->objectId);
-        query.addBindValue(objectDetail->className);
-        query.addBindValue(objectDetail->size);
-        query.addBindValue(objectDetail->references.size());
-        query.addBindValue(objectDetail->getFileLine());
-        if (!query.exec()) {
-            qDebug() << query.lastError();
+        objectids << objectDetail->objectId;
+        classNames << objectDetail->className;
+        sizes << objectDetail->size;
+        refCounts << objectDetail->references.size();
+        locations << objectDetail->getFileLine();
+
+        batchSize += 1;
+        if (batchSize > 1000) {
+            query.addBindValue(objectids);
+            query.addBindValue(classNames);
+            query.addBindValue(sizes);
+            query.addBindValue(refCounts);
+            query.addBindValue(locations);
+            if (!query.execBatch()) {
+                qDebug() << query.lastError();
+            }
+            objectids.clear();
+            classNames.clear();
+            sizes.clear();
+            refCounts.clear();
+            locations.clear();
+            batchSize = 0;
         }
         ++iter;
     }
+    query.addBindValue(objectids);
+    query.addBindValue(classNames);
+    query.addBindValue(sizes);
+    query.addBindValue(refCounts);
+    query.addBindValue(locations);
+    if (!query.execBatch()) {
+        qDebug() << query.lastError();
+    }
+    objectids.clear();
+    classNames.clear();
+    sizes.clear();
+    refCounts.clear();
+    locations.clear();
+    batchSize = 0;
 }
 
 
