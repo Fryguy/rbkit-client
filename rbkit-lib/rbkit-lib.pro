@@ -57,3 +57,6 @@ FORMS += \
     askhost.ui \
     heapdumpform.ui \
     memoryview.ui
+
+RESOURCES += \
+    rbkit_icons.qrc

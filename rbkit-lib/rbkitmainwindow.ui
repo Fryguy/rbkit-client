@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Rbkit - A Ruby Profiler</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="rbkit_icons.qrc">
+    <normaloff>:/rbkit_icons/rbkitlogo-256.png</normaloff>:/rbkit_icons/rbkitlogo-256.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
@@ -106,6 +110,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="rbkit_icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

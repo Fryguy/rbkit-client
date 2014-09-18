@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rbkit_icons/rbkitlogo-256.png</file>
+    </qresource>
+</RCC>
