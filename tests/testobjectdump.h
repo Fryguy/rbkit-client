@@ -19,6 +19,7 @@ private slots:
 
     void testBenchmarkUnpackObjectDump();
     void testBenchmarkParseObjectDump();
+    void testBenchmarkMakeEvent1FromObjectDump();
     void testBenchmarkMakeEventFromObjectDump();
 
 private:

@@ -6,7 +6,8 @@
 #include <QVariantMap>
 #include <QString>
 
-#include <stringutil.h>
+#include "model/objectdetail.h"
+#include "stringutil.h"
 
 
 // convert object to QString
@@ -88,6 +89,56 @@ operator>>(msgpack::object obj, QVariant& var)
     }
 
     return var;
+}
+
+
+// convert a payload into objectdetail.
+inline RBKit::ObjectDetail&
+operator>>(msgpack::object obj, RBKit::ObjectDetail& object)
+{
+    if (obj.type != msgpack::type::MAP) { throw msgpack::type_error(); }
+
+    auto map = obj.as< QMap<QString, msgpack::object> >();
+
+    if (! map["object_id"].is_nil()) {
+        auto objIdStr = map["object_id"].as<QString>();
+        object.objectId = RBKit::StringUtil::hextoInt(objIdStr);
+    }
+
+    if (! map["file"].is_nil()) {
+        object.fileName = map["file"].as<QString>();
+    }
+
+    if (! map["class_name"].is_nil()) {
+        object.className = map["class_name"].as<QString>();
+    }
+
+    if (! map["line"].is_nil()) {
+        object.lineNumber = map["line"].as<int>();
+    }
+
+    if (! map["references"].is_nil()) {
+        object.addReferences(map["references"].as<QVariantList>());
+    }
+
+    if (! map["size"].is_nil()) {
+        object.size = map["size"].as<int>();
+    }
+
+    return object;
+}
+
+
+// convert a payload into objectdetail pointer. not sure, whether we should
+// have this or not.
+inline RBKit::ObjectDetailPtr&
+operator>>(msgpack::object obj, RBKit::ObjectDetailPtr& objectPtr)
+{
+    if (obj.type != msgpack::type::MAP) { throw msgpack::type_error(); }
+
+    objectPtr.reset(new RBKit::ObjectDetail());
+    obj >> *objectPtr;
+    return objectPtr;
 }
 
 #endif // RBKIT_MSGPACK_PARSER_H
