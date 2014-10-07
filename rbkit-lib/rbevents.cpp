@@ -1,6 +1,7 @@
 #include <msgpack.hpp>
 #include "subscriber.h"
 #include "rbevents.h"
+#include "mpparser.h"
 
 #include <QDebug>
 
@@ -9,50 +10,6 @@ static QVariantList parseMsgpackObjectArray(const msgpack::object_array&);
 extern QVariantMap parseMsgpackObjectMap(const msgpack::object_map&);
 static QList<RBKit::EventPtr> parseEventCollection(const QVariantList&);
 
-
-static QVariant parseMsgpackObject(const msgpack::object& obj)
-{
-    switch (obj.type) {
-    case msgpack::type::ARRAY :
-        return QVariant(parseMsgpackObjectArray(obj.via.array));
-    case msgpack::type::MAP :
-        return QVariant(parseMsgpackObjectMap(obj.via.map));
-
-    case msgpack::type::RAW :
-        return QVariant(RBKit::StringUtil::rawToQString(obj));
-    case msgpack::type::DOUBLE :
-        return QVariant(obj.via.dec);
-    case msgpack::type::POSITIVE_INTEGER :
-        return QVariant((unsigned long long int)(obj.via.u64));
-    case msgpack::type::NIL :
-        return QVariant("");
-
-    default:
-        qDebug() << "throwing error while parsing event" << obj.type;
-        throw "unknown object type";
-    }
-}
-
-// NOTE: This can be improved with the version that hemant is writing for GCStats.
-QVariantMap parseMsgpackObjectMap(const msgpack::object_map& obj)
-{
-    QVariantMap map;
-
-    msgpack::object_kv* list = obj.ptr;
-    for (uint32_t iter = 0; iter != obj.size; ++iter) {
-        msgpack::object key = list->key;
-        msgpack::object val = list->val;
-
-        // qDebug() << key.type << val.type;
-
-        QString keyStr = RBKit::StringUtil::rawToQString(key);
-        map[keyStr] = parseMsgpackObject(val);
-
-        ++list;
-    }
-
-    return map;
-}
 
 RBKit::EventDataBase* RBKit::makeEventFromQVariantMap(const QVariantMap &map) {
     QDateTime timestamp = QDateTime::fromMSecsSinceEpoch(map["timestamp"].toULongLong());
@@ -81,26 +38,12 @@ RBKit::EventDataBase* RBKit::makeEventFromQVariantMap(const QVariantMap &map) {
 }
 
 
-static QVariantList parseMsgpackObjectArray(const msgpack::object_array& array)
-{
-    QVariantList objList;
-
-    for (uint32_t iter = 0; iter != array.size; ++iter) {
-        objList.append(parseMsgpackObject(array.ptr[iter]));
-    }
-
-    return objList;
-}
-
-
 RBKit::EventDataBase* RBKit::parseEvent(const QByteArray& message)
 {
     msgpack::unpacked unpackedMessage;
     msgpack::unpack(&unpackedMessage, message.data(), message.size());
 
-    msgpack::object_map obj = unpackedMessage.get().via.map;
-
-    QVariantMap map = parseMsgpackObjectMap(obj);
+    QVariantMap map = unpackedMessage.get().as< QMap<QString, QVariant> >();
     return makeEventFromQVariantMap(map);
 }
 
