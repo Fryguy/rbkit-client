@@ -3,6 +3,7 @@
 #include "model/objectstore.h"
 #include <QDebug>
 
+extern QVariantMap parseMsgpackObjectMap(const msgpack::object_map& obj);
 using namespace RBKit;
 
 static QByteArray msgpackDataFromFile(const QString filename)
@@ -17,23 +18,45 @@ void TestObjectDump::initTestCase()
     // read object dump, and parse it
     objectDump = msgpackDataFromFile(":/tests/msgpack/hugedump");
 
+    msgpack::unpacked unpackedMessage;
+    msgpack::unpack(&unpackedMessage, objectDump.data(), objectDump.size());
+
     auto evt = parseEvent(objectDump);
     event.reset(dynamic_cast<EvtObjectDump *>(evt));
 }
 
+void TestObjectDump::testBenchmarkUnpackObjectDump()
+{
+    QBENCHMARK_ONCE {
+        msgpack::unpacked unpackedMessage;
+        msgpack::unpack(&unpackedMessage, objectDump.data(), objectDump.size());
+    }
+}
+
 void TestObjectDump::testBenchmarkParseObjectDump()
 {
-    EventDataBase* base = NULL;
-    QBENCHMARK {
-        base = parseEvent(objectDump);
+    msgpack::unpacked unpackedMessage;
+    msgpack::unpack(&unpackedMessage, objectDump.data(), objectDump.size());
+
+    QBENCHMARK_ONCE {
+        msgpack::object_map obj = unpackedMessage.get().via.map;
+        QVariantMap map = parseMsgpackObjectMap(obj);
+        qDebug() << 'total in map:' << event->objects.size();
     }
+}
 
-    QVERIFY(base);
+void TestObjectDump::testBenchmarkMakeEventFromObjectDump()
+{
+    msgpack::unpacked unpackedMessage;
+    msgpack::unpack(&unpackedMessage, objectDump.data(), objectDump.size());
 
-    EvtObjectDump* event = dynamic_cast<EvtObjectDump *>(base);
-    QVERIFY(event);
+    msgpack::object_map obj = unpackedMessage.get().via.map;
+    QVariantMap map = parseMsgpackObjectMap(obj);
 
-    qDebug() << "total objects :" << event->objects.size();
+    EventDataBase* event(NULL);
+    QBENCHMARK_ONCE {
+        event = makeEventFromQVariantMap(map);
+    }
 }
 
 

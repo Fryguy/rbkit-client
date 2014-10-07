@@ -6,7 +6,7 @@
 
 
 static QVariantList parseMsgpackObjectArray(const msgpack::object_array&);
-static QVariantMap parseMsgpackObjectMap(const msgpack::object_map&);
+extern QVariantMap parseMsgpackObjectMap(const msgpack::object_map&);
 static QList<RBKit::EventPtr> parseEventCollection(const QVariantList&);
 
 
@@ -34,7 +34,7 @@ static QVariant parseMsgpackObject(const msgpack::object& obj)
 }
 
 // NOTE: This can be improved with the version that hemant is writing for GCStats.
-static QVariantMap parseMsgpackObjectMap(const msgpack::object_map& obj)
+QVariantMap parseMsgpackObjectMap(const msgpack::object_map& obj)
 {
     QVariantMap map;
 
