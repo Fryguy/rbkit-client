@@ -17,12 +17,6 @@ void TestObjectDump::initTestCase()
 {
     // read object dump, and parse it
     objectDump = msgpackDataFromFile(":/tests/msgpack/hugedump");
-
-    msgpack::unpacked unpackedMessage;
-    msgpack::unpack(&unpackedMessage, objectDump.data(), objectDump.size());
-
-    auto evt = parseEvent(objectDump);
-    event.reset(dynamic_cast<EvtObjectDump *>(evt));
 }
 
 void TestObjectDump::testBenchmarkUnpackObjectDump()
@@ -41,7 +35,6 @@ void TestObjectDump::testBenchmarkParseObjectDump()
     QBENCHMARK_ONCE {
         msgpack::object_map obj = unpackedMessage.get().via.map;
         QVariantMap map = parseMsgpackObjectMap(obj);
-        qDebug() << 'total in map:' << event->objects.size();
     }
 }
 
@@ -53,37 +46,9 @@ void TestObjectDump::testBenchmarkMakeEventFromObjectDump()
     msgpack::object_map obj = unpackedMessage.get().via.map;
     QVariantMap map = parseMsgpackObjectMap(obj);
 
-    EventDataBase* event(NULL);
+    QSharedPointer<EvtObjectDump> event;
     QBENCHMARK_ONCE {
-        event = makeEventFromQVariantMap(map);
-    }
-}
-
-
-void TestObjectDump::testBenchmarkProcessObjectsWhenObjectSpaceIsEmpty()
-{
-    qDebug() << "total objects :" << event->objects.size();
-
-    // Create an objectstore
-    ObjectStore store;
-
-    qDebug() << "populating object store for first time";
-    QBENCHMARK {
-        store.updateFromSnapshot(event->objects);
-    }
-}
-
-void TestObjectDump::testBenchmarkProcessObjectsWhenObjectSpaceIsFull()
-{
-    qDebug() << "total objects :" << event->objects.size();
-
-    // Create an objectstore
-    ObjectStore store;
-
-    store.updateFromSnapshot(event->objects);
-
-    qDebug() << "populating object store again";
-    QBENCHMARK {
-        store.updateFromSnapshot(event->objects);
+        auto evt = makeEventFromQVariantMap(map);
+        event.reset(dynamic_cast<EvtObjectDump *>(evt));
     }
 }

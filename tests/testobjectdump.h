@@ -20,8 +20,6 @@ private slots:
     void testBenchmarkUnpackObjectDump();
     void testBenchmarkParseObjectDump();
     void testBenchmarkMakeEventFromObjectDump();
-    void testBenchmarkProcessObjectsWhenObjectSpaceIsEmpty();
-    void testBenchmarkProcessObjectsWhenObjectSpaceIsFull();
 
 private:
     QByteArray objectDump;
