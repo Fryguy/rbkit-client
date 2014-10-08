@@ -17,10 +17,10 @@ class TestObjectDump : public QObject
 private slots:
     void initTestCase();
 
-    void testBenchmarkUnpackObjectDump();
     void testBenchmarkParseObjectDump();
-    void testBenchmarkMakeEvent1FromObjectDump();
-    void testBenchmarkMakeEventFromObjectDump();
+    void testBenchmarkProcessObjectsWhenObjectSpaceIsEmpty();
+    void testBenchmarkProcessObjectsWhenObjectSpaceIsFull();
+    void testBenchmarkPopulateListWithObjects();
 
 private:
     QByteArray objectDump;

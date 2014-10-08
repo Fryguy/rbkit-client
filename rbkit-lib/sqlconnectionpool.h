@@ -15,6 +15,7 @@ namespace RBKit {
 
 class SqlConnectionPool
 {
+public:
     SqlConnectionPool();
     static SqlConnectionPool *singleton;
     int currentVersion;
